@@ -14,10 +14,6 @@
 template<class T>
 class Subber {
 	static std::unordered_set<Subber<T>*> subbers;
-	static void publish(const T& e) {
-		for(const auto& l : subbers)
-			l->notify(e);
-	}
 public:
 	constexpr Subber() { subbers.insert(this); }
 	virtual ~Subber() { subbers.erase(this); }
@@ -27,7 +23,9 @@ public:
 template<typename T> std::unordered_set<Subber<T>*> Subber<T>::subbers;
 
 static void publish(const auto& e) {
-	Subber<typename std::remove_const<typename std::remove_reference<decltype(e)>::type>::type>::publish(e);
+	for(const auto& subber : Subber<typename std::remove_const<typename std::remove_reference<decltype(e)>::type>::type>::subbers) {
+		subber->notify(e);
+	}
 }
 
 #endif //SUBSCRIBER_HPP
