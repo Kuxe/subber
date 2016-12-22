@@ -36,8 +36,14 @@ struct Foo : public Subber<SimpleEvent>, Subber<CircleEvent> {
 	}
 };
 
-/** Bar will be notified by any publication of a SimpleEvent or a CollatzEvent **/
-struct Bar : public Subber<SimpleEvent>, Subber<CollatzEvent> {
+/** Bar will be notified by any publication of a SimpleEvent or a CollatzEvent 
+	Note that we write
+		struct Bar : public Subber<SimpleEvent, CollatzEvent>
+	as opposed to
+		struct Bar : public Subber<SimpleEvent>, Subber<CollatzEvent>
+	which makes inheritance from Subber more convenient
+**/
+struct Bar : public Subber<SimpleEvent, CollatzEvent> {
 	void notify(const SimpleEvent& event) override {
 		printf("Bar received SimpleEvent\n");
 	}

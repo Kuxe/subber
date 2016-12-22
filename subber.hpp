@@ -12,18 +12,22 @@
  **/
 
 template<class T>
-class Subber {
-	static std::unordered_set<Subber<T>*> subbers;
+class SubberHelper {
+	static std::unordered_set<SubberHelper<T>*> subbers;
+protected:
+	constexpr SubberHelper() { subbers.insert(this); }
+	virtual ~SubberHelper() { subbers.erase(this); }
 public:
-	constexpr Subber() { subbers.insert(this); }
-	virtual ~Subber() { subbers.erase(this); }
 	virtual void notify(const T& e) = 0;
 	friend void publish(const auto& e);
+	class Subber;
+	friend class Subber;
 };
-template<typename T> std::unordered_set<Subber<T>*> Subber<T>::subbers;
+template<typename T> std::unordered_set<SubberHelper<T>*> SubberHelper<T>::subbers;
+template<class... Ts> struct Subber : SubberHelper<Ts>... { };
 
 static void publish(const auto& e) {
-	for(const auto& subber : Subber<typename std::remove_const<typename std::remove_reference<decltype(e)>::type>::type>::subbers) {
+	for(const auto& subber : SubberHelper<typename std::remove_const<typename std::remove_reference<decltype(e)>::type>::type>::subbers) {
 		subber->notify(e);
 	}
 }
