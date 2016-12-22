@@ -19,17 +19,20 @@ protected:
 	virtual ~SubberHelper() { subbers.erase(this); }
 public:
 	virtual void notify(const T& e) = 0;
-	friend void publish(const auto& e);
-	class Subber;
-	friend class Subber;
+	template<typename U, typename... Us>
+	friend void publish(const U& u, const Us&... us);
 };
 template<typename T> std::unordered_set<SubberHelper<T>*> SubberHelper<T>::subbers;
 template<class... Ts> struct Subber : SubberHelper<Ts>... { };
 
-static void publish(const auto& e) {
-	for(const auto& subber : SubberHelper<typename std::remove_const<typename std::remove_reference<decltype(e)>::type>::type>::subbers) {
-		subber->notify(e);
+static void publish() { }
+template<typename T, typename... Ts>
+static void publish(const T& t, const Ts&... ts) {
+	for(const auto& subber : SubberHelper<typename std::remove_const<typename std::remove_reference<T>::type>::type>::subbers) {
+		subber->notify(t);
 	}
+	publish(ts...);
 }
+
 
 #endif //SUBSCRIBER_HPP

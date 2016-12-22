@@ -2,7 +2,7 @@
 
 /** @brief example.cpp illustrates how to use subber.hpp
 	@author Joakim "Kuxe" Thorén
-	@date June 2016
+	@date December 2016
  **/
 	
 /** QuitEvent, CircleEvent and CollatzEvent are example events.
@@ -12,21 +12,15 @@
 **/
 
 struct SimpleEvent { };
-
-struct CircleEvent {
-	const float x, y, r;
-};
-
+struct CircleEvent { const float x, y, r; };
 struct CollatzEvent {
 	constexpr int collatz(int num) const {
-		return 	num == 1 ? 0 : 
-				num % 2 ? collatz(3*num+1) + 1 :
-				collatz(num/2) + 1;
+		return 	num == 1 ? 0 : num % 2 ? collatz(3*num+1) + 1 : collatz(num/2) + 1;
 	}
 };
 
 /** Foo will be notified by any publication of a SimpleEvent or a CircleEvent **/
-struct Foo : public Subber<SimpleEvent>, Subber<CircleEvent> {
+struct Foo : public Subber<SimpleEvent, CircleEvent> {
 	void notify(const SimpleEvent& event) override {
 		printf("Foo received SimpleEvent\n");
 	}
@@ -36,13 +30,7 @@ struct Foo : public Subber<SimpleEvent>, Subber<CircleEvent> {
 	}
 };
 
-/** Bar will be notified by any publication of a SimpleEvent or a CollatzEvent 
-	Note that we write
-		struct Bar : public Subber<SimpleEvent, CollatzEvent>
-	as opposed to
-		struct Bar : public Subber<SimpleEvent>, Subber<CollatzEvent>
-	which makes inheritance from Subber more convenient
-**/
+/** Bar will be notified by any publication of a SimpleEvent or a CollatzEvent **/
 struct Bar : public Subber<SimpleEvent, CollatzEvent> {
 	void notify(const SimpleEvent& event) override {
 		printf("Bar received SimpleEvent\n");
@@ -59,36 +47,27 @@ int main(int argc, char** argv) {
 	CircleEvent circleEvent = {1.2f, 3.7f, 1.3f};
 	CollatzEvent collatzEvent;
 
-	//No subber are instantiated so we expect nothing to happen
-	publish(simpleEvent);
-	publish(circleEvent);
-
-	//Instantiate Foo, publish simpleEvent and collatzEvent,
-	//expect "Foo received simpleEvent" printout
-	//but no collatz printout since Foo doesn't inherit from Subber<CollatzEvent>
+	//Neither Foo or Bar is instantiated so nothing is printed
+	publish(simpleEvent, circleEvent); 
 	{
 		Foo foo;
-		publish(simpleEvent);
-		publish(collatzEvent);
+		//"Foo received simpleEvent" is printed and
+		//but no collatz printout since Foo doesn't inherit from Subber<CollatzEvent>
+		publish(simpleEvent, collatzEvent);
 
 		//Instantiate Bar, all printouts should occur
 		{
 			Bar bar;
-			publish(simpleEvent);
-			publish(circleEvent);
-			publish(collatzEvent);
+			publish(simpleEvent, circleEvent, collatzEvent);
 		}
 		//Bar out of scope so collatzEvent should yield no results once again
 		publish(collatzEvent);
 	}
 
 	//No subber is instantiated so expect nothing
-	publish(simpleEvent);
-	publish(circleEvent);
-	publish(collatzEvent);
+	publish(simpleEvent, circleEvent, collatzEvent);
 
 	//In total Foo should print SimpleEvent twice and circleEvent once
 	//and Bar should print SimpleEvent once and collatz once.
 	return 0;
 }
-
