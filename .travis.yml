@@ -27,4 +27,4 @@ matrix:
 # Build steps
 script:
   - cd build
-  - cmake .. && cmake --build
+  - cmake .. && cmake --build .
