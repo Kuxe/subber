@@ -1,4 +1,6 @@
 # subber
+[![Build Status](https://travis-ci.org/Kuxe/subber.svg?branch=master)](https://travis-ci.org/Kuxe/subber)
+[![Build Status](https://ci.appveyor.com/api/projects/status/github/kuxe/subber?svg=true)](https://ci.appveyor.com/project/Kuxe/subber)
 
 [subber.hpp](https://github.com/Kuxe/subber/blob/master/subber.hpp) contains a C++14 implementation of the publisher-subscriber pattern. The purpose of subber is simplicity. This is illustrated by the following self-contained sample code:
 
