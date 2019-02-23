@@ -44,7 +44,7 @@ struct is_subbed_to : public std::is_base_of<SubberHelper<event_type>, subber_ty
 	inline constexpr bool is_subbed_to_v = is_subbed_to<subber_type, event_type>::value;
 #endif
 
-void publish() { }
+inline void publish() { }
 template<typename event_type, typename... event_types>
 void publish(const event_type& event, const event_types&... events) {
 	static_assert(std::is_object<event_type>::value,
