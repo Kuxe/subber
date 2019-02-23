@@ -25,7 +25,7 @@ protected:
 	}
 	virtual ~SubberHelper() {
 		subbers.erase(this);
-		}
+	}
 public:
 	virtual void notified(const event_type& e) = 0;
 	template<typename T, typename... Ts>
@@ -35,7 +35,9 @@ public:
 template<typename event_type>
 std::unordered_set<SubberHelper<event_type>*> SubberHelper<event_type>::subbers;
 template<typename... event_types>
-struct Subber : private SubberHelper<event_types>... { };
+struct Subber : private SubberHelper<event_types>... {
+	virtual ~Subber() = default;
+};
 
 template<typename subber_type, typename event_type>
 struct is_subbed_to : public std::is_base_of<SubberHelper<event_type>, subber_type> { };
