@@ -27,9 +27,9 @@ protected:
 		subbers.erase(this);
 	}
 public:
-	virtual void notified(const event_type& e) = 0;
+	virtual void notified(event_type const& e) = 0;
 	template<typename T, typename... Ts>
-	friend void publish(const T&, const Ts&...);
+	friend void publish(T const&, Ts const&...);
 };
 
 template<typename event_type>
@@ -48,12 +48,12 @@ struct is_subbed_to : public std::is_base_of<SubberHelper<event_type>, subber_ty
 
 inline void publish() { }
 template<typename event_type, typename... event_types>
-void publish(const event_type& event, const event_types&... events) {
+void publish(event_type const& event, event_types const&... events) {
 	static_assert(std::is_object<event_type>::value,
 		"event_type is not an object. Do strip away qualifiers, \
 		 references or pointers when calling publish!");
 	using base_type = typename std::remove_cv<typename std::remove_reference<event_type>::type>::type;
-	for(const auto& subber : SubberHelper<base_type>::subbers) {
+	for(auto const& subber : SubberHelper<base_type>::subbers) {
 		subber->notified(event);
 	}
 	publish(events...);
